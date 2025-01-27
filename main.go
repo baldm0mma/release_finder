@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/exec"
 	"sort"
+	"strconv"
 	"strings"
 )
 
@@ -86,4 +87,42 @@ func displayReleases(commitHash string, releases []Release) {
 	}
 }
 
-func compareVersions(version1, version2 string) {}
+func compareVersions(v1, v2 string) bool {
+	// Remove 'v' prefix
+	v1 = strings.TrimPrefix(v1, "v")
+	v2 = strings.TrimPrefix(v2, "v")
+
+	// Split version from metadata
+	v1Parts := strings.FieldsFunc(v1, func(r rune) bool {
+		return r == '-' || r == '+'
+	})
+	v2Parts := strings.FieldsFunc(v2, func(r rune) bool {
+		return r == '-' || r == '+'
+	})
+
+	// Compare core versions first
+	parts1 := strings.Split(v1Parts[0], ".")
+	parts2 := strings.Split(v2Parts[0], ".")
+
+	// Compare major.minor.patch
+	for i := 0; i < len(parts1) && i < len(parts2); i++ {
+		num1, _ := strconv.Atoi(parts1[i])
+		num2, _ := strconv.Atoi(parts2[i])
+		if num1 != num2 {
+			return num1 < num2
+		}
+	}
+
+	// If core versions are equal, version with metadata is considered newer
+	// unless it's a pre-release (with '-')
+	if len(v1Parts) != len(v2Parts) {
+		v1HasPreRelease := strings.Contains(v1, "-")
+		v2HasPreRelease := strings.Contains(v2, "-")
+
+		if v1HasPreRelease != v2HasPreRelease {
+			return v1HasPreRelease // Pre-release version is older
+		}
+	}
+
+	return len(parts1) < len(parts2)
+}
