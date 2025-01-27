@@ -25,18 +25,18 @@ func main() {
 
 	// Change to the repository directory for git commands
 	if err := os.Chdir(repoPath); err != nil {
-		fmt.Println("Error: Could not change to repository directory: %v\n", err)
+		fmt.Printf("Error: Could not change to repository directory: %v\n", err)
 		os.Exit(1)
 	}
 
 	if err := exec.Command("git", "fetch", "--prune", "--tags", "--force", "origin").Run(); err != nil {
-		fmt.Println("Error fetching latest tags: %v\n", err)
+		fmt.Printf("Error fetching latest tags: %v\n", err)
 		os.Exit(1)
 	}
 
 	releases, err := findReleases(commitHash)
 	if err != nil {
-		fmt.Println("Error finding release tags: %v\n", err)
+		fmt.Printf("Error finding release tags: %v\n", err)
 		os.Exit(1)
 	}
 
@@ -72,13 +72,13 @@ func findReleases(commitHash string) ([]Release, error) {
 }
 
 func displayReleases(commitHash string, releases []Release) {
-	fmt.Println("Results for commit %s:\n\n", commitHash)
+	fmt.Printf("Results for commit %s:\n\n", commitHash)
 
 	matchFound := false
 	for _, release := range releases {
 		if release.IsMatch {
 			matchFound = true
-			fmt.Println("✓ %s\n", release.Tag)
+			fmt.Printf("✓ %s\n", release.Tag)
 		}
 	}
 
