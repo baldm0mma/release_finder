@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"sort"
 	"strconv"
 	"strings"
 )
@@ -44,29 +43,24 @@ func main() {
 }
 
 func findReleases(commitHash string) ([]Release, error) {
-	// Get all version tags - including those with metadata (e.g. v1.0.0-beta1, v1.0.0-rc1, v1.0.0+security, etc.)
-	tagRegex := "v[0-9]*.[0-9]*.[0-9]*[-+]*[a-zA-Z0-9.]*"
-	tags, err := exec.Command("git", "tag", "--list", tagRegex).Output()
+	// Get all version tags sorted by version number
+	tags, err := exec.Command("git", "tag", "--sort=version:refname").Output()
 	if err != nil {
-		return nil, fmt.Errorf("error getting tags: %v", err)
+			return nil, fmt.Errorf("error getting tags: %v", err)
 	}
 
 	var releases []Release
 	for _, tag := range strings.Split(string(tags), "\n") {
-		if tag == "" {
-			continue
-		}
+			if !strings.HasPrefix(tag, "v") || tag == "" {
+					continue
+			}
 
-		// Check if our commit is an ancestor of this release
-		cmd := exec.Command("git", "merge-base", "--is-ancestor", commitHash, tag)
-		isAncestor := cmd.Run() == nil
+			// Check if our commit is an ancestor of this release
+			cmd := exec.Command("git", "merge-base", "--is-ancestor", commitHash, tag)
+			isAncestor := cmd.Run() == nil
 
-		releases = append(releases, Release{Tag: tag, IsMatch: isAncestor})
+			releases = append(releases, Release{Tag: tag, IsMatch: isAncestor})
 	}
-
-	sort.Slice(releases, func(i, j int) bool {
-		return compareVersions(releases[i].Tag, releases[j].Tag)
-	})
 
 	return releases, nil
 }
