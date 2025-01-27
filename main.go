@@ -66,10 +66,24 @@ func findReleases(commitHash string) ([]Release, error) {
 	sort.Slice(releases, func(i, j int) bool {
 		return compareVersions(releases[i].Tag, releases[j].Tag)
 	})
+
+	return releases, nil
 }
 
 func displayReleases(commitHash string, releases []Release) {
+	fmt.Println("Results for commit %s:\n\n", commitHash)
 
+	matchFound := false
+	for _, release := range releases {
+		if release.IsMatch {
+			matchFound = true
+			fmt.Println("✓ %s\n", release.Tag)
+		}
+	}
+
+	if !matchFound {
+		fmt.Println("This commit is not in any publicly released version yet.")
+	}
 }
 
-func compareVersions() {}
+func compareVersions(version1, version2 string) {}
