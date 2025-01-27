@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"sort"
+	"strings"
 )
 
 type Release struct {
@@ -41,9 +43,33 @@ func main() {
 }
 
 func findReleases(commitHash string) ([]Release, error) {
+	// Get all version tags - including those with metadata (e.g. v1.0.0-beta1, v1.0.0-rc1, v1.0.0+security, etc.)
+	tagRegex := "v[0-9]*.[0-9]*.[0-9]*[-+]*[a-zA-Z0-9.]*"
+	tags, err := exec.Command("git", "tag", "--list", tagRegex).Output()
+	if err != nil {
+		return nil, fmt.Errorf("error getting tags: %v", err)
+	}
 
+	var releases []Release
+	for _, tag := range strings.Split(string(tags), "\n") {
+		if tag == "" {
+			continue
+		}
+
+		// Check if our commit is an ancestor of this release
+		cmd := exec.Command("git", "merge-base", "--is-ancestor", commitHash, tag)
+		isAncestor := cmd.Run() == nil
+
+		releases = append(releases, Release{Tag: tag, IsMatch: isAncestor})
+	}
+
+	sort.Slice(releases, func(i, j int) bool {
+		return compareVersions(releases[i].Tag, releases[j].Tag)
+	})
 }
 
 func displayReleases(commitHash string, releases []Release) {
 
 }
+
+func compareVersions() {}
