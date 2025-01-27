@@ -31,4 +31,19 @@ func main() {
 		os.Exit(1)
 	}
 
+	releases, err := findReleases(commitHash)
+	if err != nil {
+		fmt.Println("Error finding release tags: %v\n", err)
+		os.Exit(1)
+	}
+
+	displayReleases(commitHash, releases)
+}
+
+func findReleases(commitHash string) ([]Release, error) {
+
+}
+
+func displayReleases(commitHash string, releases []Release) {
+
 }
