@@ -1,6 +1,10 @@
 package main
 
-import ()
+import (
+	"fmt"
+	"os"
+	"os/exec"
+)
 
 type Release struct {
 	Tag     string
@@ -27,5 +31,4 @@ func main() {
 		os.Exit(1)
 	}
 
-	
 }
