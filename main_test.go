@@ -175,6 +175,9 @@ func TestCompareVersions(t *testing.T) {
 		{"v1.0.0", "v1.0.0-beta", false},
 		{"v1.0.0+build", "v1.0.0", false},
 		{"v1.0.0", "v1.0.0+build", true},
+		{"v1.1.1", "v1.1.1+security", true},
+		{"v1.1.1+security", "v1.1.1+security2", true},
+		{"v1.1.1+security", "v1.1.2", true},
 	}
 
 	for _, tt := range tests {
