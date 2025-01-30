@@ -1,0 +1,15 @@
+# Binary
+release-finder
+release_finder
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool
+*.out
+
+# Go workspace file
+go.work
+
+# macOS system files
+.DS_Store
